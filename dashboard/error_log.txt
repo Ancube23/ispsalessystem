@@ -1,0 +1,12 @@
+[2025-02-24 13:46:12] Error generating PDF: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'webtest_salesdb.subgroup' doesn't exist
+2025-02-24 14:34:08 - Error fetching subgroups: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'sg.subgroup_same' in 'order clause'
+2025-02-25 09:40:37 - Database Error: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`salesdb`.`pricelist`, CONSTRAINT `pricelist_ibfk_1` FOREIGN KEY (`PR_FNO_id`) REFERENCES `fno` (`FNO_id`) ON DELETE CASCADE)
+2025-02-25 09:42:29 - Database Error: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`salesdb`.`pricelist`, CONSTRAINT `pricelist_ibfk_1` FOREIGN KEY (`PR_FNO_id`) REFERENCES `fno` (`FNO_id`) ON DELETE CASCADE)
+2025-02-25 09:55:57 - Database Error: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`salesdb`.`package`, CONSTRAINT `package_ibfk_3` FOREIGN KEY (`subgroup_id`) REFERENCES `fno_subgroup` (`subgroup_id`) ON DELETE SET NULL)
+2025-02-25 09:58:53 - Database Error: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`salesdb`.`package`, CONSTRAINT `package_ibfk_3` FOREIGN KEY (`subgroup_id`) REFERENCES `fno_subgroup` (`subgroup_id`) ON DELETE SET NULL)
+2025-02-25 10:04:31 - Database Error: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`salesdb`.`package`, CONSTRAINT `package_ibfk_3` FOREIGN KEY (`subgroup_id`) REFERENCES `fno_subgroup` (`subgroup_id`) ON DELETE SET NULL)
+[2025-02-26 11:56:29] Invalid request: Pricelist not set.
+[2025-02-26 12:28:37] Cover page not found: 
+[2025-02-28 07:22:24] Cover page not found: 
+[2025-02-28 15:45:32] Cover page not found: 
+[2025-02-28 15:45:42] Cover page not found: 

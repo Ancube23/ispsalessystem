@@ -1,0 +1,180 @@
+:root {
+    --clr-Red: hsl(1, 90%, 64%);
+    --clr-Green: hsl(150, 100%, 38%);
+    --clr-bg: rgb(4, 0, 27);
+    --clr-form-bg: rgba(255, 255, 255, 0.1);
+    --clr-white: rgba(255, 255, 255, 0.5);
+    --clr-black: black;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: default;
+    background-color: white;
+    min-height: 100vh;
+    color: rgba(255, 255, 255, 0.801);
+    overflow: hidden;
+    padding: 1rem;
+}
+
+.top-container {
+    position: relative;
+    transform: translateY(10rem);
+    width: 100%;
+    max-width: 24rem;
+    margin: auto;
+}
+
+.bubbles{
+    position: relative;
+    display: flex;
+}
+
+.bubbles span{
+    position: relative;
+    width: 30px;
+    height: 30px;
+    /*background: linear-gradient(rgb(102, 255, 0), rgb(0, 204, 255));*/
+    background: #4fc3dc;
+    margin: 0 4px; 
+    border-radius: 50%;
+    /*box-shadow: 0 0 0 10px linear-gradient(rgb(255, 0, 170), rgb(255, 187, 0));*/
+    box-shadow: 0 0 0 10px #4fc3dc44, 
+    0 0 50px #4fc3dc, 
+    0 0 100px  #4fc3dc;
+    animation: animate 15s linear infinite;
+   animation-duration: calc(125s/ var(--i));
+}
+
+.bubbles span:nth-child(even){
+    background: #ff2d75;
+    box-shadow: 0 0 0 10px #ff2d7544,
+    0 0 50px #ff2d75,
+    0 0 100px #ff2d75;
+}
+
+@keyframes animate{
+    0%{
+        transform: translateY(100vh) scale(0);
+    }
+    100%{
+        transform: translateY(-10px) scale(1);
+    }
+}
+
+form {
+    background-color: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+   /* backdrop-filter: blur(5px);*/
+    border: 1px solid black;
+    width: 600px !important; /* Adjust this value to set the desired width */
+    max-width: 100%; /* Ensures it doesn't overflow the container */
+    margin-left: auto;
+    margin-right: auto; /* Center the form horizontally */
+    margin-top: -300px;
+}
+
+.loginform{
+    max-width: 100%;
+    width: 50%; /* Ensure the form does not exceed the max-width */
+    margin-left: auto;
+    margin-right: auto; /* Center the form horizontally */
+    margin-top: 15px;
+
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-weight: 100;
+}
+h2 {
+    color: black;
+    text-align: center;
+    font-weight: 100;
+}
+.input-wrapper {
+    margin-bottom: 1rem; /* Reduce the margin-bottom */
+    position: relative;
+    height: 2rem; /* Reduce the height */
+}
+
+.input {
+    background-color: white;
+    color: black;
+    border: 1px solid;
+    border-radius: 5px;
+    padding: 0 .25rem; /* Reduce padding */
+    height: 100%;
+    width: 100%;
+    outline: none;
+    font-size: 0.9rem; /* Reduce font-size */
+}
+
+.input:focus,
+.input:hover,
+.input:not(:placeholder-shown).input:not(:focus) {
+    border: 1px solid;
+}
+
+.label {
+    position: absolute;
+    pointer-events: none;
+    top: 50%;
+    left: 0.7rem;
+    transform: translateY(-50%);
+    transition: all 0.2s ease;
+}
+
+.input:focus~.label,
+.input:not(:placeholder-shown).input:not(:focus)~.label {
+    top: -5%;
+    font-size: 0.8rem;
+    background-color: blue;
+    color: black;
+    border-radius: 4px;
+    padding: 0.2rem 0.3rem;
+    line-height: 100%;
+}
+
+.checkbox {
+    position: absolute;
+    pointer-events: visibleFill;
+    top: 72%;
+    left: 1.4rem;
+    transform: translateY(-50%);
+    transition: all 0.2s ease;
+}
+label .rem{
+    color: black;
+    font
+}
+
+.label2 {
+    color: black; /* Default color */
+    text-decoration: none; /* Remove underline */
+    text-align: left;
+    display: block; /* Make it a block element for alignment to work */
+}
+
+.label2:hover {
+    color: black; /* Default color */
+    text-decoration: none; /* Remove underline */
+}
+
+.loginlogo{
+    position: absolute; /* Logo positioned within the container */
+    top: -150px;
+    left: 0px;
+}
+
+
+
+.date-inputs {
+    margin-top: 50px; /* Move the date inputs upwards */
+}
+
+
+
+

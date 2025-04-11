@@ -1,0 +1,595 @@
+<?php
+session_start();
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "salesdb";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Handle FNO submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_fno'])) {
+    $fno_name = $_POST['fno_name'];
+    $fno_logo = $_FILES['fno_logo']['name'];
+    $target_dir = "uploads/";
+    $target_file = $target_dir . basename($fno_logo);
+
+    move_uploaded_file($_FILES['fno_logo']['tmp_name'], $target_file);
+
+    $query = "INSERT INTO FNO (FNO_Name, FNO_Logo) VALUES ('$fno_name', '$target_file')";
+    mysqli_query($conn, $query);
+
+    $_SESSION['success_msg'] = "FNO added successfully!";
+}
+
+// Handle Pricelist submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_pricelist'])) {
+    $pr_fno_id = $_POST['pr_fno_id'];
+    $pr_short = $_POST['pr_short'];
+    $pr_long = $_POST['pr_long'];
+
+    if (!empty($pr_fno_id)) {
+        $query = "INSERT INTO Pricelist (PR_Short_Description, PR_Long_Description, PR_FNO_id) 
+                  VALUES ('$pr_short', '$pr_long', '$pr_fno_id')";
+        mysqli_query($conn, $query);
+
+        $_SESSION['success_msg'] = "Pricelist added successfully!";
+    } else {
+        $_SESSION['error_msg'] = "Error: No FNO selected or invalid ID.";
+    }
+}
+
+// Handle Package submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_package'])) {
+    $fno_id = $_POST['fno_id'];
+    $pr_id = $_POST['pr_id'];
+    $pk_term = $_POST['pk_term'];
+    $pk_speed = $_POST['pk_speed'];
+    $pk_price = $_POST['pk_price'];
+    
+    $query = "INSERT INTO Package (PR_id, FNO_id, PK_Term, PK_Speed, PK_Price) 
+              VALUES ('$pr_id', '$fno_id', '$pk_term', '$pk_speed', '$pk_price')";
+    mysqli_query($conn, $query);
+
+    $_SESSION['success_msg'] = "Package added successfully!";
+}
+
+// Handle Terms & Conditions submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_terms'])) {
+    $pr_id = $_POST['pr_id'];
+    $terms = mysqli_real_escape_string($conn, $_POST['terms']);
+
+    $query = "INSERT INTO tandc (PR_id, Terms) VALUES ('$pr_id', '$terms')";
+    if (mysqli_query($conn, $query)) {
+        $_SESSION['success_msg'] = "Terms & Conditions added successfully!";
+    } else {
+        $_SESSION['error_msg'] = "Error adding Terms & Conditions.";
+    }
+}
+
+
+
+// Fetch existing FNOs, Terms, and Pricelists
+$fno_result = mysqli_query($conn, "SELECT * FROM FNO ORDER BY FNO_Name ASC");
+$term_result = mysqli_query($conn, "SELECT * FROM Term ORDER BY T_name ASC");
+$pricelist_result = mysqli_query($conn, "SELECT * FROM Pricelist ORDER BY PR_Short_Description ASC");
+
+// Check if form is submitted
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['cover_page'])) {
+    // Get the Pricelist ID from the form
+    $pricelist_id = $_POST['pricelist'];
+
+    // Handle file upload
+    $target_dir = "uploads/cover_pages/";
+    $target_file = $target_dir . basename($_FILES["cover_page"]["name"]);
+    $uploadOk = 1;
+    $fileExtension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+    // Check if the uploaded file is either a PDF or Word document
+    $allowedExtensions = ['pdf', 'doc', 'docx'];
+
+    if (!in_array($fileExtension, $allowedExtensions)) {
+        echo "Sorry, only PDF, DOC, DOCX files are allowed.";
+        $uploadOk = 0;
+    }
+
+    // Check file size
+    if ($_FILES["cover_page"]["size"] > 5000000) { // 5MB limit
+        echo "Sorry, your file is too large.";
+        $uploadOk = 0;
+    }
+
+    // Check if upload is okay
+    if ($uploadOk == 0) {
+        echo "Sorry, your file was not uploaded.";
+    } else {
+        if (move_uploaded_file($_FILES["cover_page"]["tmp_name"], $target_file)) {
+            echo "The file " . htmlspecialchars(basename($_FILES["cover_page"]["name"])) . " has been uploaded.";
+
+            // Save the file path in the database
+            $query = "INSERT INTO cover_page (PR_id, CP_FilePath) VALUES (?, ?)";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("is", $pricelist_id, $target_file);
+            $stmt->execute();
+            $stmt->close();
+        } else {
+            echo "Sorry, there was an error uploading your file.";
+        }
+    }
+}
+
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="apple-touch-icon" sizes="76x76" href="#">
+    <link rel="icon" type="image/png" href="./img/favicon.ico">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="title" content="Ask online Form">
+    <meta name="description"
+        content="">
+    <meta name="keywords"
+        content="mobilewebdevelopment,HTML, CSS, JavaScript,Material,js,Forum ,webdesign ,website ,web ,webdesigner ,webdevelopment,Template,admin,dashboard,ebsitedesig,themeym,radwanweb,frontend-with-radwan">
+    <meta name="robots" content="index, nofollow">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="language" content="English">
+    <meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<!-- Cache-Control Meta Tags -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>WhatsMyScore</title>
+    <link rel="icon" type="image/png" href="wms_icon.png">
+    <link rel="stylesheet" type="text/css"
+        href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
+    <link rel="stylesheet" href="./css/fontawesome-all.min.css">
+    <link href="./css/materil.css" rel="stylesheet" />
+    <link href="./css/custom.css" rel="stylesheet" />
+    <link href="./css/responsive.css" rel="stylesheet" />
+    <link href="./css/style.css" rel="stylesheet" />
+    <script src="script.js?v=<?php echo time(); ?>"></script>
+<link rel="stylesheet" href="style.css?v=1.0.1">
+<script src="script.js?v=1.0.1"></script>
+  </head>
+
+  <body class="">
+
+    <!--<div class='light x1'></div>
+    <div class='light x2'></div>
+    <div class='light x3'></div>
+    <div class='light x4'></div>
+    <div class='light x5'></div>
+    <div class='light x6'></div>
+    <div class='light x7'></div>
+    <div class='light x8'></div>
+    <div class='light x9'></div>-->
+    <div class="wrapper">
+      <div
+        class="sidebar"
+        data-color="blue"
+        data-background-color="white"
+        data-image="../assets/img/sidebar-1.jpg"
+      >
+        <div class="logo">
+          <a href="./index.php" class="simple-text logo-normal">
+            <img src="./logo.png" alt="logo" style="margin-top: 40px; width: auto; height: 50px;" />
+          </a>
+        </div>
+        <div class="sidebar-wrapper">
+          <ul class="nav">
+            <li class="nav-item">
+              <a class="nav-link" href="./index.php">
+                 <img class="mr-2 img-small" src="./img/dashboard.png" />
+                Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./add_user.php">
+                <img class="mr-2 img-small" src="./img/add-user.png" />
+               Add Users
+              </a>
+            <li class="nav-item">
+              <a class="nav-link" href="./admin.php">
+                <img class="mr-2 img-small" src="./img/group.png" />
+                Users
+              </a>
+            </li>
+            
+            </li>
+             <li class="nav-item">
+              <a class="nav-link" href="./update_sales.php">
+                <img class="mr-2 img-small" src="./img/administrator.png" />
+                Add Sales
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./edit_sales.php">
+                <img class="mr-2 img-small" src="./img/editing.png" />
+                Edit Sales
+              </a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="./sales_report.php">
+                <img class="mr-2 img-small" src="./img/bar-chart.png" />
+                Sales Report
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./maintain.php">
+                <img class="mr-2 img-small" src="./img/categorization.png" />
+                Maintain Pricelist
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./view_pricelist.php">
+                <img class="mr-2 img-small" src="./img/teamwork.png" />
+                View Pricelist
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./view_pricelist_pdfs.php">
+                <img class="mr-2 img-small" src="./img/smart-home.png" />
+                View PDF
+              </a>
+            </li>
+             <!--<li class="nav-item">
+              <a class="nav-link" href="./settings.php">
+                <img class="mr-2" src="./img/Group 1385.png" />
+                Settings
+              </a>
+            </li>-->
+            <li class="nav-item">
+                <a class="nav-link" href="../logout.php">
+                  <img class="mr-2 img-small" src="./img/logout.png" />
+                  Logout
+                </a>
+              </li>
+          </ul>
+        </div>
+      </div>
+      <div class="main-panel">
+        <!-- Navbar -->
+        <nav
+          class="
+            navbar navbar-expand-lg navbar-transparent navbar-absolute
+            fixed-top
+          "
+        >
+          <div class="container-fluid">
+            <div class="navbar-wrapper">
+              <a class="navbar-brand" href="javascript:;">Admin</a>
+            </div>
+            <button
+              class="navbar-toggler"
+              type="button"
+              data-toggle="collapse"
+              aria-controls="navigation-index"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span class="sr-only">Toggle navigation</span>
+              <span class="navbar-toggler-icon icon-bar"></span>
+              <span class="navbar-toggler-icon icon-bar"></span>
+              <span class="navbar-toggler-icon icon-bar"></span>
+            </button>
+            <div class="collapse navbar-collapse">
+             
+              <!--<ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                  <a
+                    class="nav-link"
+                    href="http://example.com"
+                    id="navbarDropdownMenuLink"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <i class="material-icons">notifications</i>
+                    <span class="notification">5</span>
+                    <p class="d-lg-none d-md-block">Some Actions</p>
+                  </a>
+                  <div
+                    class="dropdown-menu dropdown-menu-right"
+                    aria-labelledby="navbarDropdownMenuLink"
+                  >
+                    <a class="dropdown-item" href="#"
+                      >No New Notifications</a
+                    >
+                  </div>
+                </li>
+                <li class="nav-item dropdown">
+                  <a
+                    class="nav-link"
+                    href="javascript:;"
+                    id="navbarDropdownProfile"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <i class="material-icons">person</i>
+                    <p class="d-lg-none d-md-block">Account</p>
+                    <span class="hide-arrow-admin-text">
+                      Admin
+                      <i class="material-icons">arrow_drop_down</i>
+                    </span>
+                  </a>
+
+                  <div
+                    class="dropdown-menu dropdown-menu-right"
+                    aria-labelledby="navbarDropdownProfile"
+                  >
+                    <a class="dropdown-item" href="user-profile.html">Profile</a>
+                    <a class="dropdown-item" href="#">Settings</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">Log out</a>
+                  </div>
+                </li>
+              </ul>-->
+            </div>
+          </div>
+        </nav>
+        <!-- End Navbar -->
+
+
+              <div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header card-header-primary">
+                        <div class="float-left">
+                      <a
+                        ><span class="material-icons custom-material-icon">
+                          description </span
+                        ><span>Maintain</span></a
+                      >
+                    </div>
+
+                         <div class="float-right">
+                <div class="user-profile-nav">
+                  <div class="btn-add-group">
+  
+        <!-- ADD NEW FNO FORM -->
+        <form method="POST" enctype="multipart/form-data" class="card p-4 shadow mb-3">
+            <h5>Add Fibre Network Operator</h5>
+            <div class="mb-3">
+                <label class="form-label">FNO Name</label>
+                <input type="text" name="fno_name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">FNO Logo</label>
+                <input type="file" name="fno_logo" class="form-control" required>
+            </div>
+            <button type="submit" name="submit_fno" class="btn btn-success">Add FNO</button>
+        </form>
+
+        <!-- ADD NEW PRICELIST FORM -->
+<form method="POST" class="card p-4 shadow mb-3">
+    <h5>Add Pricelist</h5>
+
+    <div class="mb-3">
+        <label class="form-label">Fibre Network Operator</label>
+        <select name="pr_fno_id" class="form-control" required>
+            <option value="">Select FNO</option>
+            <?php 
+            $fno_result = mysqli_query($conn, "SELECT * FROM FNO ORDER BY FNO_Name ASC");
+            while ($row = mysqli_fetch_assoc($fno_result)) { ?>
+                <option value="<?php echo $row['FNO_id']; ?>"><?php echo $row['FNO_Name']; ?></option>
+            <?php } ?>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Short Description</label>
+        <input type="text" name="pr_short" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Long Description</label>
+        <textarea name="pr_long" class="form-control" required></textarea>
+    </div>
+
+    <button type="submit" name="submit_pricelist" class="btn btn-success">Add Pricelist</button>
+</form>
+
+
+
+
+        <!-- ADD PACKAGE FORM -->
+        <form method="POST" class="card p-4 shadow">
+    <h5>Add Package</h5>
+
+    <div class="mb-3">
+        <label class="form-label">Fibre Network Operator</label>
+        <select name="fno_id" class="form-control" required>
+            <option value="">Select FNO</option>
+            <?php 
+            $fno_result = mysqli_query($conn, "SELECT * FROM FNO ORDER BY FNO_Name ASC");
+            while ($row = mysqli_fetch_assoc($fno_result)) { ?>
+                <option value="<?php echo $row['FNO_id']; ?>"><?php echo $row['FNO_Name']; ?></option>
+            <?php } ?>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Pricelist</label>
+        <select name="pr_id" class="form-control" required>
+            <option value="">Select Pricelist</option>
+            <?php while ($row = mysqli_fetch_assoc($pricelist_result)) { ?>
+                <option value="<?php echo $row['PR_id']; ?>"><?php echo $row['PR_Short_Description']; ?></option>
+            <?php } ?>
+        </select>
+    </div>
+
+    <!-- Bootstrap-styled radio buttons for Term -->
+    <div class="mb-3">
+        <label class="form-label d-block">Term</label>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="pk_term" id="monthToMonth" value="Month-to-Month" required>
+            <label class="form-check-label" for="monthToMonth">Month-to-Month</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="pk_term" id="twelveMonths" value="12 Months" required>
+            <label class="form-check-label" for="twelveMonths">12 Months</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="pk_term" id="twentyFourMonths" value="24 Months" required>
+            <label class="form-check-label" for="twentyFourMonths">24 Months</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="pk_term" id="thirtySixMonths" value="36 Months" required>
+            <label class="form-check-label" for="thirtySixMonths">36 Months</label>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Speed (Mbps)</label>
+        <input type="text" name="pk_speed" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Price (R)</label>
+        <input type="text" name="pk_price" class="form-control" required>
+    </div>
+
+    <button type="submit" name="submit_package" class="btn btn-primary">Save Package</button>
+</form>
+
+<!-- ADD TERMS & CONDITIONS FORM -->
+<form method="POST" class="card p-4 shadow mt-4">
+    <h5>Add Terms & Conditions</h5>
+
+    <div class="mb-3">
+        <label class="form-label">Pricelist Group</label>
+        <select name="pr_id" class="form-control" required>
+            <option value="">Select Pricelist</option>
+            <?php 
+            $pricelist_result = mysqli_query($conn, "SELECT * FROM Pricelist ORDER BY PR_Short_Description ASC");
+            while ($row = mysqli_fetch_assoc($pricelist_result)) { ?>
+                <option value="<?php echo $row['PR_id']; ?>"><?php echo $row['PR_Short_Description']; ?></option>
+            <?php } ?>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Terms & Conditions</label>
+        <textarea name="terms" class="form-control" rows="4" required></textarea>
+    </div>
+
+    <button type="submit" name="submit_terms" class="btn btn-success">Add Terms & Conditions</button>
+</form>
+
+<!-- Upload Cover Page File -->
+<form method="POST" enctype="multipart/form-data" class="card p-4 shadow mt-4">
+    <h5>Upload Cover Page for Pricelist</h5>
+
+    <!-- Dropdown to select Pricelist -->
+    <div class="mb-3">
+        <label for="pricelist" class="form-label">Select Pricelist</label>
+        <select name="pricelist" id="pricelist" class="form-select" required>
+            <option value="" disabled selected>Select Pricelist</option>
+            <?php
+                // Fetch pricelists from the database
+                $query = "SELECT PR_id, PR_Short_Description FROM Pricelist ORDER BY PR_Short_Description ASC";
+                $result = mysqli_query($conn, $query);
+
+                // Populate the dropdown with pricelists
+                while ($row = mysqli_fetch_assoc($result)) {
+                    echo "<option value='" . $row['PR_id'] . "'>" . $row['PR_Short_Description'] . "</option>";
+                }
+            ?>
+        </select>
+    </div>
+
+    <!-- Upload File for Cover Page -->
+    <div class="mb-3">
+        <label for="cover_page" class="form-label">Upload Cover Page</label>
+        <input type="file" name="cover_page" id="cover_page" class="form-control" required>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" name="submit" class="btn btn-success">Upload Cover Page</button>
+</form>
+
+
+                                    </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+        
+       
+
+        
+        
+      </div>
+    </div>
+    <div class="fixed-plugin"></div>
+    <!--   Core JS Files   -->
+    <script src="./js/vendor/jquery-3.2.1.min.js"></script>
+    <script src="./js/popper.min.js"></script>
+    <script src="./js/bootstrap-material-design.min.js"></script>
+    <script src="./js/perfect-scrollbar.jquery.min.js"></script>
+    <!-- Plugin for the momentJs  -->
+    <script src="./js/moment.min.js"></script>
+    <!--  Plugin for Sweet Alert -->
+    <script src="./js/sweetalert2.js"></script>
+    <!-- Forms Validations Plugin -->
+    <script src="./js/jquery.validate.min.js"></script>
+    <!-- Plugin for the Wizard, full documentation here: https://github.com/VinceG/twitter-bootstrap-wizard -->
+    <script src="./js/jquery.bootstrap-wizard.js"></script>
+    <!--  Plugin for Select, full documentation here: http://silviomoreto.github.io/bootstrap-select -->
+    <script src="./js/bootstrap-selectpicker.js"></script>
+    <!--  Plugin for the DateTimePicker, full documentation here: https://eonasdan.github.io/bootstrap-datetimepicker/ -->
+    <script src="./js/bootstrap-datetimepicker.min.js"></script>
+    <!--  DataTables.net Plugin, full documentation here: https://datatables.net/  -->
+    <script src="./js/jquery.dataTables.min.js"></script>
+    <!--  Plugin for Tags, full documentation here: https://github.com/bootstrap-tagsinput/bootstrap-tagsinputs  -->
+    <script src="./js/bootstrap-tagsinput.js"></script>
+    <!-- Plugin for Fileupload, full documentation here: http://www.jasny.net/bootstrap/javascript/#fileinput -->
+    <script src="./js/jasny-bootstrap.min.js"></script>
+    <!--  Full Calendar Plugin, full documentation here: https://github.com/fullcalendar/fullcalendar    -->
+    <script src="./js/fullcalendar.min.js"></script>
+    <!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support SweetAlert -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>
+    <!-- Library for adding dinamically elements -->
+    <script src="./js/arrive.min.js"></script>
+    <!--  Google Maps Plugin    -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB2Yno10-YTnLjjn_Vtk0V8cdcY5lC4plU"></script>
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <!-- Chartist JS -->
+    <script src="./js/chartist.min.js"></script>
+    <!--  Notifications Plugin    -->
+    <script src="./js/bootstrap-notify.js"></script>
+    <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+    <script
+      src="./js/material-dashboard.min.js?v=2.1.2"
+      type="text/javascript"
+    ></script>
+    <script src="./js/main.js"></script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var alertList = document.querySelectorAll('.alert');
+        alertList.forEach(function(alert) {
+            new bootstrap.Alert(alert);
+        });
+    });
+</script>
+
+</body>
+</html>

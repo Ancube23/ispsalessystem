@@ -1,0 +1,39 @@
+.datPinkColor {
+	background-color: rgb(226,0,99) !important;
+}
+
+#jumbotron {
+	background-color: black;
+}
+
+#firstProgressBar {
+	background-color: darkgrey; 
+	width: 80%;
+}
+
+#secondProgressBar {
+	background-color: darkgrey; 
+	width: 57%;
+}
+
+#footer {
+	background-color: black; 
+	height: 100px; 
+	padding: 50px;
+}
+
+/* Add scrollbar to element with class .scrollbar */
+.scrollbar {
+    overflow-y: auto; /* Add vertical scrollbar */
+    max-height: 200px; /* Set maximum height */
+}
+.formsize {
+    margin-top: 20px; /* Adjust this value to move the form up or down */
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+}

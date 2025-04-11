@@ -1,0 +1,71 @@
+<?php
+require('fpdf186/fpdf.php');
+require('src/autoload.php');
+require('src/FPDI.php');
+
+use setasign\Fpdi\Fpdi;
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "salesdb";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+class PDF extends FPDF {
+    function Header() {
+        $this->SetFont('Arial', 'B', 16);
+        $this->Cell(0, 10, 'Fibre Network Operators & Packages', 0, 1, 'C');
+        $this->Ln(5);
+    }
+}
+
+$pdf = new PDF();
+$pdf->SetAutoPageBreak(true, 10);
+$pdf->AddPage();
+$pdf->SetFont('Arial', '', 12);
+
+$fno_query = "SELECT * FROM FNO ORDER BY FNO_Name ASC";
+$fno_result = $conn->query($fno_query);
+
+while ($fno = $fno_result->fetch_assoc()) {
+    $pdf->Ln(5);
+    $pdf->SetFont('Arial', 'B', 14);
+    $pdf->Cell(0, 10, $fno['FNO_Name'], 0, 1, 'L');
+    
+    if (!empty($fno['FNO_Logo']) && file_exists($fno['FNO_Logo'])) {
+        $pdf->Image($fno['FNO_Logo'], 10, $pdf->GetY(), 30);
+        $pdf->Ln(10);
+    }
+
+    $pdf->SetFont('Arial', 'B', 12);
+    $pdf->Cell(40, 10, 'Term', 1);
+    $pdf->Cell(40, 10, 'Speed (Mbps)', 1);
+    $pdf->Cell(40, 10, 'Price (R)', 1);
+    $pdf->Ln();
+
+    $package_query = "SELECT PK_Term, PK_Speed, PK_Price FROM Package WHERE FNO_id = " . $fno['FNO_id'] . " ORDER BY PK_Term ASC";
+    $package_result = $conn->query($package_query);
+
+    if ($package_result->num_rows > 0) {
+        $pdf->SetFont('Arial', '', 12);
+        while ($package = $package_result->fetch_assoc()) {
+            $pdf->Cell(40, 10, $package['PK_Term'], 1);
+            $pdf->Cell(40, 10, $package['PK_Speed'], 1);
+            $pdf->Cell(40, 10, 'R' . number_format($package['PK_Price'], 2), 1);
+            $pdf->Ln();
+        }
+    } else {
+        $pdf->Cell(120, 10, 'No packages available', 1, 1, 'C');
+    }
+    $pdf->Ln(5);
+}
+
+$conn->close();
+
+$pdf->Output('D', 'FNO_Pricelist.pdf');
+?>

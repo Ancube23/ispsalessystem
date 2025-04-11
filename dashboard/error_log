@@ -1,0 +1,4 @@
+[24-Feb-2025 12:23:44 Africa/Johannesburg] Error fetching subgroups: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'webtest_salesdb.fno_subgroups' doesn't exist
+[24-Feb-2025 12:29:15 Africa/Johannesburg] Error fetching subgroups: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'webtest_salesdb.fno_subgroups' doesn't exist
+[24-Feb-2025 12:29:18 Africa/Johannesburg] Error fetching subgroups: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'webtest_salesdb.fno_subgroups' doesn't exist
+[24-Feb-2025 12:30:15 Africa/Johannesburg] Error fetching subgroups: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'webtest_salesdb.fno_subgroups' doesn't exist
