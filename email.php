@@ -45,8 +45,8 @@ foreach ($salesData as $data) {
         $mail->isSMTP();
         $mail->Host       = 'cms.synaq.com'; // Replace with your SMTP server
         $mail->SMTPAuth   = true;                
-        $mail->Username   = 'support@redwill.co.za'; // Replace with your email
-        $mail->Password   = 'rw#jmn853K7'; // Replace with your email password
+        $mail->Username   = ''; // Replace with your email
+        $mail->Password   = ''; // Replace with your email password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;                
 
